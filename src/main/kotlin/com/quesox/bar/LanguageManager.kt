@@ -5,11 +5,8 @@ import net.minecraft.text.Text
 import java.io.InputStream
 import java.nio.file.Files
 import java.nio.file.Path
-import java.util.*
-import com.google.gson.JsonObject
+
 import com.google.gson.JsonParser
-import net.minecraft.server.MinecraftServer
-import java.io.File
 
 object LanguageManager {
     // 支持的语种
@@ -20,7 +17,7 @@ object LanguageManager {
 
         companion object {
             fun fromCode(code: String): Language {
-                return values().find { it.code.equals(code, ignoreCase = true) } ?: AUTO
+                return entries.find { it.code.equals(code, ignoreCase = true) } ?: AUTO
             }
         }
     }
@@ -60,7 +57,7 @@ object LanguageManager {
                         currentLanguage = Language.fromCode(langCode)
                     }
                 }
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 // 使用默认语言
                 currentLanguage = Language.AUTO
             }
@@ -84,7 +81,7 @@ object LanguageManager {
     private fun loadTranslationFile(language: Language) {
         try {
             val resourcePath = "/assets/backupalwaysright/lang/${language.code}.json"
-            var inputStream: InputStream? = null
+            var inputStream: InputStream?
 
             // 首先尝试从类路径加载（JAR内部）
             inputStream = javaClass.getResourceAsStream(resourcePath)
@@ -118,7 +115,7 @@ object LanguageManager {
             inputStream.close()
 
           //  println("[LanguageManager] Loaded ${translations.size} translations for ${language.code}")
-        } catch (e: Exception) {
+        } catch (_: Exception) {
           //  println("[LanguageManager] Error loading translations for ${language.code}: ${e.message}")
             loadHardcodedTranslations(language)
         }
@@ -216,7 +213,7 @@ object LanguageManager {
                 Files.write(configFile, defaultConfig.toByteArray())
             }
             return true
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             return false
         }
     }
@@ -236,7 +233,7 @@ object LanguageManager {
                     translation = translation.replace("%${i + 1}\$s", args[i].toString())
                     translation = translation.replace("%${i + 1}\$d", args[i].toString())
                 }
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 // 如果替换失败，返回原始翻译
             }
         }
@@ -249,8 +246,4 @@ object LanguageManager {
         return translate(key, *args)
     }
 
-    // 检查翻译键是否存在
-    fun hasTranslation(key: String): Boolean {
-        return translations.containsKey(key) || fallbackTranslations.containsKey(key)
-    }
 }

@@ -11,7 +11,7 @@ import java.nio.file.Path
 import java.nio.file.Paths
 import java.text.SimpleDateFormat
 import java.util.*
-import java.util.Locale
+
 import java.util.Locale.getDefault
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
@@ -118,7 +118,7 @@ object BackupManager {
             val intervalMinutes = parseTimeInterval(config.backupInterval)
             server.sendMessage(LanguageManager.tr("backupalwaysright.system_started", intervalMinutes))
 
-            backupDirs.forEachIndexed { index, dir ->
+            backupDirs.forEachIndexed { _, dir ->
                 server.sendMessage(LanguageManager.tr("backupalwaysright.backup_path", dir.toAbsolutePath()))
             }
 
@@ -983,7 +983,7 @@ object BackupManager {
             return "§c" + LanguageManager.tr("backupalwaysright.auto_backup_disabled").string
         }
     }
-
+    /*
     fun setBackupPaths(paths: String): String {
         config.backupPaths = paths
         saveConfig()
@@ -1127,7 +1127,7 @@ object BackupManager {
             "§c" + LanguageManager.tr("backupalwaysright.language_invalid", lang).string
         }
     }
-
+    */
     fun listBackups(): List<String> {
         val backups = mutableListOf<String>()
 
