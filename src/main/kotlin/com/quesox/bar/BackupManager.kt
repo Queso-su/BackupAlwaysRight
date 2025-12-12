@@ -998,7 +998,7 @@ object BackupManager {
             }
         }
     }
-
+    */
     // 设置备份间隔（分钟）
     fun setBackupIntervalMinutes(minutes: Int): String {
         val intervalStr = "${minutes}m"
@@ -1089,44 +1089,45 @@ object BackupManager {
         return if (enabled) "§a" + LanguageManager.tr("backupalwaysright.debug_mode_enabled").string
         else "§c" + LanguageManager.tr("backupalwaysright.debug_mode_disabled").string
     }
-
-    fun setBackupFolders(folders: String): String {
-        config.backupFolders = folders
-        saveConfig()
-
-        // 重新初始化世界文件夹
-        initWorldFolders()
-
-        return "§a" + LanguageManager.tr("backupalwaysright.backup_folders_set", folders).string
-    }
-
-    fun setNoticeTime(seconds: Int): String {
-        config.noticeTime = seconds.coerceIn(0, 300)
-        saveConfig()
-        return "§a" + LanguageManager.tr("backupalwaysright.notice_time_set", config.noticeTime).string
-    }
-
     fun setShutdownDelay(seconds: Int): String {
         config.shutdownDelay = seconds.coerceIn(1, 60)
         saveConfig()
         return "§a" + LanguageManager.tr("backupalwaysright.shutdown_delay_set", config.shutdownDelay).string
     }
+    /*
+     fun setBackupFolders(folders: String): String {
+       config.backupFolders = folders
+       saveConfig()
 
-    // 添加语言设置方法
-    fun setLanguage(lang: String): String {
-        return try {
-            val language = LanguageManager.Language.fromCode(lang)
-            val success = LanguageManager.setLanguage(language, server.runDirectory)
+       // 重新初始化世界文件夹
+       initWorldFolders()
 
-            if (success) {
-                "§a" + LanguageManager.tr("backupalwaysright.language_set", language.code).string
-            } else {
-                "§c" + LanguageManager.tr("backupalwaysright.language_change_failed").string
-            }
-        } catch (e: Exception) {
-            "§c" + LanguageManager.tr("backupalwaysright.language_invalid", lang).string
-        }
-    }
+       return "§a" + LanguageManager.tr("backupalwaysright.backup_folders_set", folders).string
+   }
+
+   fun setNoticeTime(seconds: Int): String {
+       config.noticeTime = seconds.coerceIn(0, 300)
+       saveConfig()
+       return "§a" + LanguageManager.tr("backupalwaysright.notice_time_set", config.noticeTime).string
+   }
+
+
+
+   // 添加语言设置方法
+   fun setLanguage(lang: String): String {
+       return try {
+           val language = LanguageManager.Language.fromCode(lang)
+           val success = LanguageManager.setLanguage(language, server.runDirectory)
+
+           if (success) {
+               "§a" + LanguageManager.tr("backupalwaysright.language_set", language.code).string
+           } else {
+               "§c" + LanguageManager.tr("backupalwaysright.language_change_failed").string
+           }
+       } catch (e: Exception) {
+           "§c" + LanguageManager.tr("backupalwaysright.language_invalid", lang).string
+       }
+   }
     */
     fun listBackups(): List<String> {
         val backups = mutableListOf<String>()
