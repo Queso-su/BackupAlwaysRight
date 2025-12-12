@@ -4,8 +4,13 @@
 # Backup Always Right
 
  - [简体中文](https://github.com/Queso-su/BackupAlwaysRight/blob/master/README.zh_CN.md)
+ - **English**
 
-A easyful Minecraft server backup mod with smart backup, multi-language support, and multiple storage paths.
+
+A easyful Minecraft server backup mod with smart backup, multi-language support, and multiple storage paths.  
+
+ Only Support Minecraft 1.21.x - [1.21.11]() **Fabric** .
+ 
 
 
 ##  Features
