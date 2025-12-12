@@ -7,6 +7,7 @@ import java.nio.file.Files
 import java.nio.file.Path
 
 import com.google.gson.JsonParser
+import java.util.Locale
 
 object LanguageManager {
     // 支持的语种
@@ -166,7 +167,8 @@ object LanguageManager {
         }
     }
 
-    fun setLanguage(language: Language, serverRunDirectory: Path): Boolean {
+    /*
+        fun setLanguage(language: Language, serverRunDirectory: Path): Boolean {
         currentLanguage = language
         this.serverRunDirectory = serverRunDirectory
 
@@ -207,7 +209,7 @@ object LanguageManager {
                 val defaultConfig = """
                     # 语言设置 (auto, en_us, zh_cn)
                     language=${currentLanguage.code}
-                    
+
                     # 其他配置...
                 """.trimIndent()
                 Files.write(configFile, defaultConfig.toByteArray())
@@ -217,6 +219,7 @@ object LanguageManager {
             return false
         }
     }
+     */
 
     fun getCurrentLanguage(): Language {
         return currentLanguage
