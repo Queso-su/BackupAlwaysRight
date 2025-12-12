@@ -4,7 +4,7 @@ import net.fabricmc.api.ModInitializer
 import org.slf4j.LoggerFactory
 
 object BackupAlwaysRight : ModInitializer {
-	private val logger = LoggerFactory.getLogger("backupalwaysright")
+	//private val logger = LoggerFactory.getLogger("backupalwaysright")
 
 	override fun onInitialize() {
 

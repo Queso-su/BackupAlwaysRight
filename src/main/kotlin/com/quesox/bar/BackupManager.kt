@@ -799,8 +799,8 @@ object BackupManager {
         var success = false
         var attempts = 0
         val maxAttempts = 2
-
-        while (!success && attempts < maxAttempts) {
+        // while (!success && attempts < maxAttempts) {
+        while (!success) {
             attempts++
             try {
                 FileOutputStream(backupFile).use { fileOut ->
