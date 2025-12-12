@@ -1,7 +1,7 @@
 package com.quesox.bar
 
 import net.fabricmc.api.ModInitializer
-import org.slf4j.LoggerFactory
+
 
 object BackupAlwaysRight : ModInitializer {
 	//private val logger = LoggerFactory.getLogger("backupalwaysright")
