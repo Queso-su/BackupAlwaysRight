@@ -1,0 +1,131 @@
+{
+  "backupalwaysright.mod_name": "备份总是对的",
+  "backupalwaysright.mod_initialized": "BAR 备对模组已加载",
+  "backupalwaysright.system_started": "备份系统已启动，间隔: %1$s分钟",
+  "backupalwaysright.backup_path": "备份路径: %1$s",
+
+  "backupalwaysright.backup_starting": "正在创建备份%1$s...",
+  "backupalwaysright.warning_shutdown": "警告: 服务器将在备份完成后关闭!",
+
+  "backupalwaysright.no_backups_found": "没有找到备份",
+  "backupalwaysright.backup_list_title": "=== 备份列表 (.zip格式) ===",
+  "backupalwaysright.backup_item": "%1$s. %2$s",
+
+  "backupalwaysright.auto_backup_enabled": "自动备份已启用",
+  "backupalwaysright.auto_backup_disabled": "自动备份已禁用",
+
+  "backupalwaysright.backup_interval_set": "备份间隔已设置为 %1$s 分钟",
+  "backupalwaysright.notice_time_set": "备份前提示时间已设置为 %1$s 秒",
+  "backupalwaysright.shutdown_delay_set": "备份完成后关闭服务器延迟已设置为 %1$s 秒",
+
+  "backupalwaysright.backup_disabled": "备份功能已禁用",
+  "backupalwaysright.countdown_backup": "服务器将在 %1$s 秒后开始备份",
+
+  "backupalwaysright.backup_world_start": "开始备份世界数据...",
+  "backupalwaysright.backup_world_compressing": "正在备份世界数据...",
+  "backupalwaysright.backup_world_compressing_file": "正在压缩 %1$s...",
+  "backupalwaysright.backup_world_completed": "服务器备份已完成",
+  "backupalwaysright.backup_world_file_completed": "%1$s 压缩完成 (%2$sms)",
+
+  "backupalwaysright.backup_created": "备份创建成功: %1$s.zip (%2$sMB)",
+  "backupalwaysright.backup_failed": "备份失败: %1$s",
+  "backupalwaysright.backup_async_failed": "异步备份失败: %1$s",
+
+  "backupalwaysright.backup_locked_file": "跳过被锁定的文件: %1$s",
+  "backupalwaysright.backup_cleaning": "清理旧备份: %1$s",
+  "backupalwaysright.backup_clean_failed": "清理备份时出错: %1$s",
+
+  "backupalwaysright.backup_notify_path": "备份路径已设置为:",
+  "backupalwaysright.backup_notify_name_format": "备份名称格式已设置为: %1$s",
+
+  "backupalwaysright.no_world_folders": "找不到任何世界文件夹",
+
+  "backupalwaysright.shutdown_scheduled": "备份完成，将在 %1$s 秒后关闭服务器...",
+  "backupalwaysright.backup_starting_countdown": "备份将在 %1$s 秒后开始...",
+  "backupalwaysright.backup_task_started": "备份任务已启动，正在后台处理...",
+
+  "backupalwaysright.config_read_failed": "读取配置文件失败，使用默认配置: %1$s",
+  "backupalwaysright.config_save_failed": "保存配置文件失败: %1$s",
+  "backupalwaysright.backup_starting_shutdown": "正在创建备份并关闭服务器...",
+
+  "backupalwaysright.language_set": "语言已设置为: %1$s",
+  "backupalwaysright.language_invalid": "无效的语言代码: %1$s (支持: auto, en_us, zh_cn)",
+  "backupalwaysright.language_change_failed": "语言切换失败，请检查配置文件权限",
+
+  "backupalwaysright.smart_backup_enabled": "智能备份: 已启用",
+  "backupalwaysright.debug_mode_enabled": "调试模式: 已启用",
+
+  "backupalwaysright.backup_folders": "备份文件夹: %1$s",
+  "backupalwaysright.change_threshold": "变化阈值: %1$s%",
+  "backupalwaysright.min_changed_files": "最小变化文件数: %1$s",
+  "backupalwaysright.current_language": "当前语言: %1$s",
+
+  "backupalwaysright.backup_dir_failed": "创建备份目录失败: %1$s - %2$s",
+  "backupalwaysright.folder_not_found": "警告: 备份文件夹不存在: %1$s",
+  "backupalwaysright.folders_loaded": "已加载 %1$s 个备份文件夹",
+
+  "backupalwaysright.first_check": "首次检查，需要备份",
+  "backupalwaysright.new": "新增",
+  "backupalwaysright.modified": "修改",
+  "backupalwaysright.deleted": "删除",
+  "backupalwaysright.size": "大小",
+  "backupalwaysright.significant_change": "检测到显著变化: 大小变化 %1$s, 文件数变化 %2$s, 比例 %3$s%",
+  "backupalwaysright.significant_change_detected": "检测到显著变化",
+  "backupalwaysright.insufficient_change": "变化不足，跳过备份",
+  "backupalwaysright.skip_backup": "跳过自动备份",
+  "backupalwaysright.no_change_skip": "无显著变化，跳过自动备份",
+
+  "backupalwaysright.save_state_failed": "保存世界状态失败: %1$s",
+  "backupalwaysright.load_state_failed": "加载世界状态失败: %1$s",
+
+  "backupalwaysright.scheduled_backup_started": "定时备份已启动，间隔: %1$s 分钟",
+
+  "backupalwaysright.backup_path_result": "路径 %1$s: %2$s",
+  "backupalwaysright.backup_path_failed": "路径 %1$s 失败: %2$s",
+
+  "backupalwaysright.verify_backup": "备份完成，验证备份完整性...",
+  "backupalwaysright.verify_success": "备份验证通过",
+  "backupalwaysright.verify_failed": "备份验证失败，尝试重新备份...",
+  "backupalwaysright.max_retry_exceeded": "备份验证失败，已达到最大重试次数",
+
+  "backupalwaysright.backup_process_error": "备份过程中出现错误: %1$s",
+  "backupalwaysright.verify_file_count": "备份验证: 共检查了 %1$s 个文件",
+  "backupalwaysright.verify_exception": "备份验证失败: %1$s",
+
+  "backupalwaysright.backup_progress": "备份进度: %1$s% (已处理: %2$sMB)",
+
+  "backupalwaysright.config_reloaded": "配置文件已重新加载",
+  "backupalwaysright.current_config": "当前配置:",
+  "backupalwaysright.language_setting": "语言: %1$s",
+  "backupalwaysright.auto_backup": "自动备份: %1$s",
+  "backupalwaysright.backup_interval": "备份间隔: %1$s (%2$s分钟)",
+  "backupalwaysright.backup_path_count": "备份路径: %1$s 个",
+  "backupalwaysright.backup_path_item": "路径 %1$s: %2$s",
+  "backupalwaysright.smart_backup": "智能备份: %1$s",
+  "backupalwaysright.debug_mode": "调试模式: %1$s",
+
+  "backupalwaysright.enabled": "启用",
+  "backupalwaysright.disabled": "禁用",
+
+  "backupalwaysright.backup_folders_set": "备份文件夹已设置为: %1$s",
+  "backupalwaysright.backup_dir_title": "备份路径 %1$s: %2$s",
+  "backupalwaysright.more_backups": "... 还有 %1$s 个备份",
+
+  "backupalwaysright.backup_system_status": "备份系统状态",
+  "backupalwaysright.auto_backup_status": "自动备份: %1$s",
+  "backupalwaysright.backup_interval_status": "备份间隔: %1$s (%2$s分钟)",
+  "backupalwaysright.backup_path_count_status": "备份路径: %1$s 个",
+  "backupalwaysright.smart_backup_status": "智能备份: %1$s",
+  "backupalwaysright.change_threshold_status": "变化阈值: %1$s%",
+  "backupalwaysright.min_files_status": "最小文件数: %1$s 个",
+  "backupalwaysright.compression_level_status": "压缩级别: %1$s",
+  "backupalwaysright.max_backups_status": "最大备份数: %1$s 个",
+  "backupalwaysright.debug_mode_status": "调试模式: %1$s",
+  "backupalwaysright.backup_folders_status": "备份文件夹: %1$s",
+
+  "backupalwaysright.backup_interval_minutes_set": "备份间隔已设置为 %1$s 分钟 (总分钟数: %2$s)",
+  "backupalwaysright.backup_interval_hours_set": "备份间隔已设置为 %1$s 小时 (总分钟数: %2$s)",
+  "backupalwaysright.backup_interval_days_set": "备份间隔已设置为 %1$s 天 (总分钟数: %2$s)",
+
+  "backupalwaysright.reload_failed": "重新加载配置文件失败: %1$s"
+}

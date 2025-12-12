@@ -1,0 +1,131 @@
+{
+  "backupalwaysright.mod_name": "BAR",
+  "backupalwaysright.mod_initialized": "Backup Always Right mod loaded",
+  "backupalwaysright.system_started": "Backup system started, interval: %1$s minutes",
+  "backupalwaysright.backup_path": "Backup path: %1$s",
+
+  "backupalwaysright.backup_starting": "Creating backup%1$s...",
+  "backupalwaysright.warning_shutdown": "Warning: Server will shut down after backup completes!",
+
+  "backupalwaysright.no_backups_found": "No backups found",
+  "backupalwaysright.backup_list_title": "=== Backup List (.zip format) ===",
+  "backupalwaysright.backup_item": "%1$s. %2$s",
+
+  "backupalwaysright.auto_backup_enabled": "Auto backup enabled",
+  "backupalwaysright.auto_backup_disabled": "Auto backup disabled",
+
+  "backupalwaysright.backup_interval_set": "Backup interval set to %1$s minutes",
+  "backupalwaysright.notice_time_set": "Notice time before backup set to %1$s seconds",
+  "backupalwaysright.shutdown_delay_set": "Shutdown delay after backup set to %1$s seconds",
+
+  "backupalwaysright.backup_disabled": "Backup function is disabled",
+  "backupalwaysright.countdown_backup": "Server will start backup in %1$s seconds",
+
+  "backupalwaysright.backup_world_start": "Starting world data backup...",
+  "backupalwaysright.backup_world_compressing": "Backing up world data...",
+  "backupalwaysright.backup_world_compressing_file": "Compressing %1$s...",
+  "backupalwaysright.backup_world_completed": "Server backup completed",
+  "backupalwaysright.backup_world_file_completed": "%1$s compression completed (%2$sms)",
+
+  "backupalwaysright.backup_created": "Backup created successfully: %1$s.zip (%2$sMB)",
+  "backupalwaysright.backup_failed": "Backup failed: %1$s",
+  "backupalwaysright.backup_async_failed": "Async backup failed: %1$s",
+
+  "backupalwaysright.backup_locked_file": "Skipping locked file: %1$s",
+  "backupalwaysright.backup_cleaning": "Cleaning old backup: %1$s",
+  "backupalwaysright.backup_clean_failed": "Error cleaning backups: %1$s",
+
+  "backupalwaysright.backup_notify_path": "Backup path set to:",
+  "backupalwaysright.backup_notify_name_format": "Backup name format set to: %1$s",
+
+  "backupalwaysright.no_world_folders": "No world folders found",
+
+  "backupalwaysright.shutdown_scheduled": "Backup completed, server will shut down in %1$s seconds...",
+  "backupalwaysright.backup_starting_countdown": "Backup will start in %1$s seconds...",
+  "backupalwaysright.backup_task_started": "Backup task started, processing in background...",
+
+  "backupalwaysright.config_read_failed": "Failed to read config file, using default: %1$s",
+  "backupalwaysright.config_save_failed": "Failed to save config file: %1$s",
+  "backupalwaysright.backup_starting_shutdown": "Creating backup and shutting down server...",
+
+  "backupalwaysright.language_set": "Language set to: %1$s",
+  "backupalwaysright.language_invalid": "Invalid language code: %1$s (supported: auto, en_us, zh_cn)",
+  "backupalwaysright.language_change_failed": "Language change failed, please check config file permissions",
+
+  "backupalwaysright.smart_backup_enabled": "Smart backup: enabled",
+  "backupalwaysright.debug_mode_enabled": "Debug mode: enabled",
+
+  "backupalwaysright.backup_folders": "Backup folders: %1$s",
+  "backupalwaysright.change_threshold": "Change threshold: %1$s%",
+  "backupalwaysright.min_changed_files": "Minimum changed files: %1$s",
+  "backupalwaysright.current_language": "Current language: %1$s",
+
+  "backupalwaysright.backup_dir_failed": "Failed to create backup directory: %1$s - %2$s",
+  "backupalwaysright.folder_not_found": "Warning: Backup folder does not exist: %1$s",
+  "backupalwaysright.folders_loaded": "Loaded %1$s backup folders",
+
+  "backupalwaysright.first_check": "First check, need backup",
+  "backupalwaysright.new": "NEW",
+  "backupalwaysright.modified": "MODIFIED",
+  "backupalwaysright.deleted": "DELETED",
+  "backupalwaysright.size": "size",
+  "backupalwaysright.significant_change": "Detected significant change: size change %1$s, file count change %2$s, ratio %3$s%",
+  "backupalwaysright.significant_change_detected": "Significant change detected",
+  "backupalwaysright.insufficient_change": "Insufficient change, skip backup",
+  "backupalwaysright.skip_backup": "skip automatic backup",
+  "backupalwaysright.no_change_skip": "No significant changes, skip automatic backup",
+
+  "backupalwaysright.save_state_failed": "Failed to save world state: %1$s",
+  "backupalwaysright.load_state_failed": "Failed to load world state: %1$s",
+
+  "backupalwaysright.scheduled_backup_started": "Scheduled backup started, interval: %1$s minutes",
+
+  "backupalwaysright.backup_path_result": "Path %1$s: %2$s",
+  "backupalwaysright.backup_path_failed": "Path %1$s failed: %2$s",
+
+  "backupalwaysright.verify_backup": "Backup completed, verifying backup integrity...",
+  "backupalwaysright.verify_success": "Backup verification passed",
+  "backupalwaysright.verify_failed": "Backup verification failed, trying to backup again...",
+  "backupalwaysright.max_retry_exceeded": "Backup verification failed, reached maximum retry count",
+
+  "backupalwaysright.backup_process_error": "Error during backup process: %1$s",
+  "backupalwaysright.verify_file_count": "Backup verification: checked %1$s files",
+  "backupalwaysright.verify_exception": "Backup verification failed: %1$s",
+
+  "backupalwaysright.backup_progress": "Backup progress: %1$s% (processed: %2$sMB)",
+
+  "backupalwaysright.config_reloaded": "Configuration file reloaded",
+  "backupalwaysright.current_config": "Current configuration:",
+  "backupalwaysright.language_setting": "Language: %1$s",
+  "backupalwaysright.auto_backup": "Auto backup: %1$s",
+  "backupalwaysright.backup_interval": "Backup interval: %1$s (%2$s minutes)",
+  "backupalwaysright.backup_path_count": "Backup paths: %1$s",
+  "backupalwaysright.backup_path_item": "Path %1$s: %2$s",
+  "backupalwaysright.smart_backup": "Smart backup: %1$s",
+  "backupalwaysright.debug_mode": "Debug mode: %1$s",
+
+  "backupalwaysright.enabled": "enabled",
+  "backupalwaysright.disabled": "disabled",
+
+  "backupalwaysright.backup_folders_set": "Backup folders set to: %1$s",
+  "backupalwaysright.backup_dir_title": "Backup path %1$s: %2$s",
+  "backupalwaysright.more_backups": "... and %1$s more backups",
+
+  "backupalwaysright.backup_system_status": "Backup System Status",
+  "backupalwaysright.auto_backup_status": "Auto backup: %1$s",
+  "backupalwaysright.backup_interval_status": "Backup interval: %1$s (%2$s minutes)",
+  "backupalwaysright.backup_path_count_status": "Backup paths: %1$s",
+  "backupalwaysright.smart_backup_status": "Smart backup: %1$s",
+  "backupalwaysright.change_threshold_status": "Change threshold: %1$s%",
+  "backupalwaysright.min_files_status": "Minimum files: %1$s",
+  "backupalwaysright.compression_level_status": "Compression level: %1$s",
+  "backupalwaysright.max_backups_status": "Maximum backups: %1$s",
+  "backupalwaysright.debug_mode_status": "Debug mode: %1$s",
+  "backupalwaysright.backup_folders_status": "Backup folders: %1$s",
+
+  "backupalwaysright.backup_interval_minutes_set": "Backup interval set to %1$s minutes (total minutes: %2$s)",
+  "backupalwaysright.backup_interval_hours_set": "Backup interval set to %1$s hours (total minutes: %2$s)",
+  "backupalwaysright.backup_interval_days_set": "Backup interval set to %1$s days (total minutes: %2$s)",
+
+  "backupalwaysright.reload_failed": "Failed to reload configuration: %1$s"
+}

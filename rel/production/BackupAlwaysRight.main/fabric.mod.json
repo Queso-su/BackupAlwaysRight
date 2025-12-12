@@ -1,0 +1,41 @@
+{
+	"schemaVersion": 1,
+	"id": "backupalwaysright",
+	"version": "1.0.0",
+	"name": "BackupAlwaysRight",
+	"description": "auto backup yours saves for server/自动备份你的服务器世界存档，支持定时备份和手动备份",
+	"authors": [
+		"QuesoX"
+	],
+	"contact": {
+		"homepage": "https://fabricmc.net/",
+		"sources": "https://github.com/FabricMC/fabric-example-mod"
+	},
+	"license": "MIT",
+	"icon": "assets/backupalwaysright/icon.png",
+	"environment": "server",
+	"entrypoints": {
+		"main": [
+			{
+				"value": "com.quesox.bar.BackupAlwaysRight",
+				"adapter": "kotlin"
+			}
+		],
+		"fabric-datagen": [
+			{
+				"value": "com.quesox.bar.BackupAlwaysRightDataGenerator",
+				"adapter": "kotlin"
+			}
+		]
+	},
+	"mixins": [
+		"backupalwaysright.mixins.json"
+	],
+	"depends": {
+		"fabricloader": ">=0.18.0",
+		"minecraft": ">=1.21.1",
+		"java": ">=21",
+		"fabric-api": "*",
+		"fabric-language-kotlin": "*"
+	}
+}
