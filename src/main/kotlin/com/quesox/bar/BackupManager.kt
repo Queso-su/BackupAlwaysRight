@@ -671,7 +671,7 @@ object BackupManager {
             }
         }
 
-        // 设置关闭标记
+        // 设置关闭标记1
         shutdownAfterBackup = shutdown
 
         return try {
