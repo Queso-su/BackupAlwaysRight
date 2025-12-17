@@ -10,9 +10,9 @@
 A easyful Minecraft server backup mod with smart backup, multi-language support, and multiple storage paths.  
 
  Only Support Minecraft 1.21.1 - [1.21.11]() **Fabric** .
- 
 
-
+>  ####  Attention!!!!!    If yours _Minecraft Version < 1.21.11_  , **Please Use [Version : 1.0.0]()**,
+>  #### Mojang changed old api, so this version don't support OP Permissions Setting
 ##  Features
 
 - **Scheduled backups** - Set intervals in minutes, hours, or days

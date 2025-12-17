@@ -78,7 +78,7 @@ object BackupCommands {
 
     private fun executeBackupNow(context: CommandContext<ServerCommandSource>, shutdown: Boolean): Int {
         val source = context.source
-        val shutdownText = if (shutdown) "并关闭服务器" else ""
+        val shutdownText = if (shutdown) "并关闭服务器/AND ShutDown Server" else ""
 
         if (shutdown) {
             source.sendFeedback({
