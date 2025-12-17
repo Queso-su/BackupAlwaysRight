@@ -1,7 +1,7 @@
 {
 	"schemaVersion": 1,
 	"id": "backupalwaysright",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"name": "BackupAlwaysRight",
 	"description": "auto backup yours saves for server/自动备份你的服务器世界存档，支持定时备份和手动备份",
 	"authors": [
