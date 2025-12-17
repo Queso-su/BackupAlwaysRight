@@ -391,7 +391,7 @@ object BackupManager {
     }
 
     /**
-     * 检查世界是否有显著变化（增强版）
+     * 检查世界是否有显著变化
      */
     private fun checkWorldChanges(): WorldChangeResult {
         val lastState = lastWorldState ?: return WorldChangeResult(
@@ -671,7 +671,7 @@ object BackupManager {
             }
         }
 
-        // 设置关闭标记1
+        // 设置关闭标记
         shutdownAfterBackup = shutdown
 
         return try {

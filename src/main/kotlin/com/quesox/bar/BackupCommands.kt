@@ -5,6 +5,8 @@ import com.mojang.brigadier.arguments.IntegerArgumentType
 import com.mojang.brigadier.arguments.StringArgumentType
 import com.mojang.brigadier.context.CommandContext
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback
+import net.minecraft.command.permission.Permission
+import net.minecraft.command.permission.PermissionLevel
 import net.minecraft.server.command.CommandManager
 import net.minecraft.server.command.ServerCommandSource
 import net.minecraft.text.Text
@@ -23,6 +25,7 @@ object BackupCommands {
         // 所有子命令
         backupCommand
             .then(CommandManager.literal("start")
+                .requires { source -> source.permissions.hasPermission(Permission.Level(PermissionLevel.MODERATORS)) }
                 .executes { executeBackupNow(it, false) })
             .then(CommandManager.literal("list")
                 .executes { listBackups(it) })
@@ -30,15 +33,19 @@ object BackupCommands {
             .then(CommandManager.literal("interval")
                 .then(CommandManager.literal("minute")
                     .then(CommandManager.argument("minutes", IntegerArgumentType.integer(1, 1440))
+                        .requires { source -> source.permissions.hasPermission(Permission.Level(PermissionLevel.GAMEMASTERS)) }
                         .executes { setBackupIntervalMinutes(it) }))
                 .then(CommandManager.literal("hour")
                     .then(CommandManager.argument("hours", IntegerArgumentType.integer(1, 24))
+                        .requires { source -> source.permissions.hasPermission(Permission.Level(PermissionLevel.GAMEMASTERS)) }
                         .executes { setBackupIntervalHours(it) }))
                 .then(CommandManager.literal("day")
                     .then(CommandManager.argument("days", IntegerArgumentType.integer(1, 30))
+                        .requires { source -> source.permissions.hasPermission(Permission.Level(PermissionLevel.GAMEMASTERS)) }
                         .executes { setBackupIntervalDays(it) })))
             .then(CommandManager.literal("autobackup")
                 .then(CommandManager.argument("state", StringArgumentType.string())
+                    .requires { source -> source.permissions.hasPermission(Permission.Level(PermissionLevel.GAMEMASTERS)) }
                     .suggests { _, builder ->
                         builder.suggest("enable").suggest("disable").buildFuture()
                     }
@@ -48,6 +55,7 @@ object BackupCommands {
                 .executes { executeBackupNow(it, true) }
                 .then(CommandManager.literal("delay")
                     .then(CommandManager.argument("seconds", IntegerArgumentType.integer(1, 60))
+                        .requires { source -> source.permissions.hasPermission(Permission.Level(PermissionLevel.OWNERS)) }
                         .executes { setShutdownDelay(it) })))
             // 新增的命令
             .then(CommandManager.literal("debug")
@@ -55,11 +63,13 @@ object BackupCommands {
                     .suggests { _, builder ->
                         builder.suggest("enable").suggest("disable").buildFuture()
                     }
+                    .requires { source -> source.permissions.hasPermission(Permission.Level(PermissionLevel.GAMEMASTERS)) }
                     .executes { setDebugMode(it) }))
 
             .then(CommandManager.literal("status")
                 .executes { showStatus(it) })
             .then(CommandManager.literal("reload")
+                .requires { source -> source.permissions.hasPermission(Permission.Level(PermissionLevel.GAMEMASTERS)) }
                 .executes { reloadConfig(it) })
 
         // 注册主命令
