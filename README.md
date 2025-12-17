@@ -9,7 +9,7 @@
 
 A easyful Minecraft server backup mod with smart backup, multi-language support, and multiple storage paths.  
 
- Only Support Minecraft 1.21.x - [1.21.11]() **Fabric** .
+ Only Support Minecraft 1.21.1 - [1.21.11]() **Fabric** .
  
 
 
