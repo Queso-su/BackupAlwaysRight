@@ -29,8 +29,10 @@
 		]
 	},
 	"mixins": [
-		"config":"mineauth.mixins.json",
-		"environment": "server"
+		{
+			"config":"backupalwaysright.mixins.json",
+			"environment": "server"
+		}
 	],
 	"depends": {
 		"fabricloader": ">=0.16.9",
