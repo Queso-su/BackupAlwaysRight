@@ -18,6 +18,9 @@ import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicLong
+import java.util.concurrent.atomic.AtomicReference
+import java.util.concurrent.CountDownLatch
+
 import java.util.zip.ZipEntry
 import java.util.zip.ZipFile
 import java.util.zip.ZipOutputStream
@@ -654,6 +657,40 @@ object BackupManager {
     }
 
     fun createBackup(manual: Boolean = false, shutdown: Boolean = false): String {
+        // 如果不在主线程中，提交到主线程执行
+        if (!server.isOnThread) {
+            val result = AtomicReference<String>("")
+            val latch = CountDownLatch(1)
+            
+            server.executeSync {
+                try {
+                    result.set(createBackupInternal(manual, shutdown))
+                } catch (e: Exception) {
+                    val errorMsg = e.message?.let { LanguageManager.tr("backupalwaysright.backup_failed", it) }!!.string
+                    result.set(errorMsg)
+                } finally {
+                    latch.countDown()
+                }
+            }
+            
+            try {
+                latch.await()
+            } catch (_: InterruptedException) {
+                Thread.currentThread().interrupt()
+                return LanguageManager.tr("backupalwaysright.backup_interrupted").string
+            }
+            
+            return result.get()
+        }
+        
+        // 如果已经在主线程中，直接执行
+        return createBackupInternal(manual, shutdown)
+    }
+
+    /**
+     * 内部备份创建方法，必须在主线程中执行
+     */
+    private fun createBackupInternal(manual: Boolean = false, shutdown: Boolean = false): String {
         if (!config.backupEnabled && !manual) {
             return LanguageManager.tr("backupalwaysright.backup_disabled").string
         }
@@ -668,6 +705,16 @@ object BackupManager {
                     server.sendMessage(Text.literal(message))
                     return message
                 }
+            }
+        }
+
+        // 自动备份前检查服务器是否有玩家在线
+        if (!manual) {
+            if (server.playerManager.playerList.isEmpty()) {
+                val message = if (config.debugMode) "§7服务器无玩家在线，${LanguageManager.tr("backupalwaysright.skip_backup").string}"
+                else "§7服务器无玩家在线，跳过自动备份"
+                server.sendMessage(Text.literal(message))
+                return message
             }
         }
 
@@ -705,6 +752,22 @@ object BackupManager {
      * 执行备份流程
      */
     private fun executeBackupProcess(manual: Boolean, notify: Boolean) {
+        // 在主线程中执行服务器保存操作
+        if (server.isOnThread) {
+            // 如果已经在主线程中，直接执行
+            performServerSave(manual, notify)
+        } else {
+            // 如果不在主线程中，提交到主线程执行
+            server.executeSync {
+                performServerSave(manual, notify)
+            }
+        }
+    }
+
+    /**
+     * 在主线程中执行服务器保存并启动备份
+     */
+    private fun performServerSave(manual: Boolean, notify: Boolean) {
         // 确保服务器保存所有数据（同步执行）
         server.playerManager.saveAllPlayerData()
         server.save(true, true, true)
