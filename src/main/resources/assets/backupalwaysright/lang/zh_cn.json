@@ -127,5 +127,6 @@
   "backupalwaysright.backup_interval_hours_set": "备份间隔已设置为 %1$s 小时 (总分钟数: %2$s)",
   "backupalwaysright.backup_interval_days_set": "备份间隔已设置为 %1$s 天 (总分钟数: %2$s)",
 
-  "backupalwaysright.reload_failed": "重新加载配置文件失败: %1$s"
+  "backupalwaysright.reload_failed": "重新加载配置文件失败: %1$s",
+  "backupalwaysright.backup_executor_force_shutdown": "强制关闭备份执行器"
 }

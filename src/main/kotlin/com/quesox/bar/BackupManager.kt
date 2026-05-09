@@ -633,8 +633,26 @@ object BackupManager {
     }
 
     private fun stopScheduledBackup() {
+        // 关闭定时备份调度器
         backupScheduler?.shutdown()
         backupScheduler = null
+        
+        // 关闭异步备份执行器 - 这是修复服务器无法关闭的关键
+        backupExecutor.shutdown()
+        try {
+            // 等待正在执行的任务完成（最多等待5分钟）
+            if (!backupExecutor.awaitTermination(5, TimeUnit.MINUTES)) {
+                // 如果超时，强制关闭
+                backupExecutor.shutdownNow()
+                if (config.debugMode) {
+                    server.sendMessage(Text.literal("§c" + LanguageManager.tr("backupalwaysright.backup_executor_force_shutdown").string))
+                }
+            }
+        } catch (e: InterruptedException) {
+            // 如果等待被中断，强制关闭
+            backupExecutor.shutdownNow()
+            Thread.currentThread().interrupt()
+        }
     }
 
     /**
@@ -729,11 +747,15 @@ object BackupManager {
                 val noticeMessage = LanguageManager.tr("backupalwaysright.countdown_backup", config.noticeTime).string
                 server.playerManager.broadcast(Text.literal(noticeMessage), false)
 
-                // 延迟执行备份（异步）
-                Thread {
-                    Thread.sleep((config.noticeTime * 1000).toLong())
-                    executeBackupProcess(manual, notify)
-                }.start()
+                // 延迟执行备份 - 使用服务器调度器确保在主线程执行
+                server.executeSync {
+                    try {
+                        Thread.sleep((config.noticeTime * 1000).toLong())
+                        executeBackupProcess(manual, notify)
+                    } catch (e: InterruptedException) {
+                        Thread.currentThread().interrupt()
+                    }
+                }
 
                 return noticeMessage
             } else {

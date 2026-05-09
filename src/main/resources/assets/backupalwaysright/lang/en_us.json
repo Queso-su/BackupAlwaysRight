@@ -127,5 +127,6 @@
   "backupalwaysright.backup_interval_hours_set": "Backup interval set to %1$s hours (total minutes: %2$s)",
   "backupalwaysright.backup_interval_days_set": "Backup interval set to %1$s days (total minutes: %2$s)",
 
-  "backupalwaysright.reload_failed": "Failed to reload configuration: %1$s"
+  "backupalwaysright.reload_failed": "Failed to reload configuration: %1$s",
+  "backupalwaysright.backup_executor_force_shutdown": "Forcefully shutting down backup executor"
 }
