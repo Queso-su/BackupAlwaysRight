@@ -1,19 +1,19 @@
 {
 	"schemaVersion": 1,
-	"id": "backupalwaysright",
-	"version": "1.0.1",
-	"name": "BackupAlwaysRight",
-	"description": "auto backup yours saves for server/自动备份你的服务器世界存档，支持定时备份和手动备份",
+	"id": "backup-always-right",
+	"version": "${version}",
+	"name": "Backup Always Right",
+	"description": "This is an example description! Tell everyone what your mod is about!",
 	"authors": [
-		"QuesoX"
+		"Me!"
 	],
 	"contact": {
-		"homepage": "https://github.com/Queso-su/MineAuth",
-		"sources": "https://github.com/Queso-su/MineAuth"
+		"homepage": "https://fabricmc.net/",
+		"sources": "https://github.com/FabricMC/fabric-example-mod"
 	},
-	"license": "MIT",
-	"icon": "assets/backupalwaysright/icon.png",
-	"environment": "server",
+	"license": "CC0-1.0",
+	"icon": "assets/backup-always-right/icon.png",
+	"environment": "*",
 	"entrypoints": {
 		"main": [
 			{
@@ -21,17 +21,24 @@
 				"adapter": "kotlin"
 			}
 		],
-		"fabric-datagen": [
+		"client": [
 			{
-				"value": "com.quesox.bar.BackupAlwaysRightDataGenerator",
+				"value": "com.quesox.bar.client.BackupAlwaysRightClient",
 				"adapter": "kotlin"
 			}
 		]
 	},
+	"mixins": [
+		"backup-always-right.mixins.json",
+		{
+			"config": "backup-always-right.client.mixins.json",
+			"environment": "client"
+		}
+	],
 	"depends": {
-		"fabricloader": ">=0.18.1",
-		"minecraft": ">=1.21.11",
-		"java": ">=17",
+		"fabricloader": ">=0.19.2",
+		"minecraft": "~26.1",
+		"java": ">=25",
 		"fabric-api": "*",
 		"fabric-language-kotlin": "*"
 	}

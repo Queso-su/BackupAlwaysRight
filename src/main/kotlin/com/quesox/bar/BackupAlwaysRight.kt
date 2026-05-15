@@ -1,20 +1,15 @@
 package com.quesox.bar
 
 import net.fabricmc.api.ModInitializer
-
+import org.slf4j.LoggerFactory
 
 object BackupAlwaysRight : ModInitializer {
-	//private val logger = LoggerFactory.getLogger("backupalwaysright")
+    private val logger = LoggerFactory.getLogger("backup-always-right")
 
 	override fun onInitialize() {
-
-
-		// 初始化备份管理器
-		BackupManager.initialize()
-
-		// 注册指令
-		BackupCommands.register()
-
-
+		// This code runs as soon as Minecraft is in a mod-load-ready state.
+		// However, some things (like resources) may still be uninitialized.
+		// Proceed with mild caution.
+		logger.info("Hello Fabric world!")
 	}
 }
