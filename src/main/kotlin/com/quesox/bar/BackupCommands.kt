@@ -5,11 +5,9 @@ import com.mojang.brigadier.arguments.IntegerArgumentType
 import com.mojang.brigadier.arguments.StringArgumentType
 import com.mojang.brigadier.context.CommandContext
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback
-import net.minecraft.command.permission.Permission
-import net.minecraft.command.permission.PermissionLevel
-import net.minecraft.server.command.CommandManager
-import net.minecraft.server.command.ServerCommandSource
-import net.minecraft.text.Text
+import net.minecraft.commands.CommandSourceStack
+import net.minecraft.commands.Commands
+import net.minecraft.network.chat.Component
 
 object BackupCommands {
     fun register() {
@@ -18,101 +16,101 @@ object BackupCommands {
         }
     }
 
-    private fun registerCommands(dispatcher: CommandDispatcher<ServerCommandSource>) {
+    private fun registerCommands(dispatcher: CommandDispatcher<CommandSourceStack>) {
         // 创建主命令 bar
-        val backupCommand = CommandManager.literal("bar")
+        val backupCommand = Commands.literal("bar")
 
         // 所有子命令
         backupCommand
-            .then(CommandManager.literal("start")
-                .requires { source -> source.permissions.hasPermission(Permission.Level(PermissionLevel.MODERATORS)) }
+            .then(Commands.literal("start")
+                .requires(Commands.hasPermission(Commands.LEVEL_MODERATORS))
                 .executes { executeBackupNow(it, false) })
-            .then(CommandManager.literal("list")
+            .then(Commands.literal("list")
                 .executes { listBackups(it) })
             // 修改后的interval命令，支持minute/hour/day子命令
-            .then(CommandManager.literal("interval")
-                .then(CommandManager.literal("minute")
-                    .then(CommandManager.argument("minutes", IntegerArgumentType.integer(1, 1440))
-                        .requires { source -> source.permissions.hasPermission(Permission.Level(PermissionLevel.GAMEMASTERS)) }
+            .then(Commands.literal("interval")
+                .then(Commands.literal("minute")
+                    .then(Commands.argument("minutes", IntegerArgumentType.integer(1, 1440))
+                        .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
                         .executes { setBackupIntervalMinutes(it) }))
-                .then(CommandManager.literal("hour")
-                    .then(CommandManager.argument("hours", IntegerArgumentType.integer(1, 24))
-                        .requires { source -> source.permissions.hasPermission(Permission.Level(PermissionLevel.GAMEMASTERS)) }
+                .then(Commands.literal("hour")
+                    .then(Commands.argument("hours", IntegerArgumentType.integer(1, 24))
+                        .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
                         .executes { setBackupIntervalHours(it) }))
-                .then(CommandManager.literal("day")
-                    .then(CommandManager.argument("days", IntegerArgumentType.integer(1, 30))
-                        .requires { source -> source.permissions.hasPermission(Permission.Level(PermissionLevel.GAMEMASTERS)) }
+                .then(Commands.literal("day")
+                    .then(Commands.argument("days", IntegerArgumentType.integer(1, 30))
+                        .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
                         .executes { setBackupIntervalDays(it) })))
-            .then(CommandManager.literal("autobackup")
-                .then(CommandManager.argument("state", StringArgumentType.string())
-                    .requires { source -> source.permissions.hasPermission(Permission.Level(PermissionLevel.GAMEMASTERS)) }
+            .then(Commands.literal("autobackup")
+                .then(Commands.argument("state", StringArgumentType.string())
+                    .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
                     .suggests { _, builder ->
                         builder.suggest("enable").suggest("disable").buildFuture()
                     }
                     .executes { toggleBackup(it) }))
 
-            .then(CommandManager.literal("shutdown")
+            .then(Commands.literal("shutdown")
                 .executes { executeBackupNow(it, true) }
-                .then(CommandManager.literal("delay")
-                    .then(CommandManager.argument("seconds", IntegerArgumentType.integer(1, 60))
-                        .requires { source -> source.permissions.hasPermission(Permission.Level(PermissionLevel.OWNERS)) }
+                .then(Commands.literal("delay")
+                    .then(Commands.argument("seconds", IntegerArgumentType.integer(1, 60))
+                        .requires(Commands.hasPermission(Commands.LEVEL_OWNERS))
                         .executes { setShutdownDelay(it) })))
             // 新增的命令
-            .then(CommandManager.literal("debug")
-                .then(CommandManager.argument("state", StringArgumentType.string())
+            .then(Commands.literal("debug")
+                .then(Commands.argument("state", StringArgumentType.string())
                     .suggests { _, builder ->
                         builder.suggest("enable").suggest("disable").buildFuture()
                     }
-                    .requires { source -> source.permissions.hasPermission(Permission.Level(PermissionLevel.GAMEMASTERS)) }
+                    .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
                     .executes { setDebugMode(it) }))
 
-            .then(CommandManager.literal("status")
+            .then(Commands.literal("status")
                 .executes { showStatus(it) })
-            .then(CommandManager.literal("reload")
-                .requires { source -> source.permissions.hasPermission(Permission.Level(PermissionLevel.GAMEMASTERS)) }
+            .then(Commands.literal("reload")
+                .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
                 .executes { reloadConfig(it) })
 
         // 注册主命令
         dispatcher.register(backupCommand)
     }
 
-    private fun executeBackupNow(context: CommandContext<ServerCommandSource>, shutdown: Boolean): Int {
+    private fun executeBackupNow(context: CommandContext<CommandSourceStack>, shutdown: Boolean): Int {
         val source = context.source
         val shutdownText = if (shutdown) "并关闭服务器/AND ShutDown Server" else ""
 
         if (shutdown) {
-            source.sendFeedback({
+            source.sendSuccess({
                 LanguageManager.tr("backupalwaysright.warning_shutdown")
             }, true)
         }
 
-        source.sendFeedback({
+        source.sendSuccess({
             LanguageManager.tr("backupalwaysright.backup_starting", shutdownText)
         }, true)
 
         val result = BackupManager.createBackup(true, shutdown)
-        source.sendFeedback({
-            Text.literal(result)
+        source.sendSuccess({
+            Component.literal(result)
         }, true)
 
         return 1
     }
 
-    private fun listBackups(context: CommandContext<ServerCommandSource>): Int {
+    private fun listBackups(context: CommandContext<CommandSourceStack>): Int {
         val source = context.source
         val backups = BackupManager.listBackups()
 
         if (backups.isEmpty()) {
-            source.sendFeedback({
+            source.sendSuccess({
                 LanguageManager.tr("backupalwaysright.no_backups_found")
             }, false)
         } else {
-            source.sendFeedback({
+            source.sendSuccess({
                 LanguageManager.tr("backupalwaysright.backup_list_title")
             }, false)
 
             backups.forEachIndexed { index, backup ->
-                source.sendFeedback({
+                source.sendSuccess({
                     LanguageManager.tr("backupalwaysright.backup_item", index + 1, backup)
                 }, false)
             }
@@ -122,75 +120,75 @@ object BackupCommands {
     }
 
     // 设置分钟间隔
-    private fun setBackupIntervalMinutes(context: CommandContext<ServerCommandSource>): Int {
+    private fun setBackupIntervalMinutes(context: CommandContext<CommandSourceStack>): Int {
         val minutes = IntegerArgumentType.getInteger(context, "minutes")
         val result = BackupManager.setBackupIntervalMinutes(minutes)
-        context.source.sendFeedback({
-            Text.literal(result)
+        context.source.sendSuccess({
+            Component.literal(result)
         }, true)
         return 1
     }
 
     // 设置小时间隔
-    private fun setBackupIntervalHours(context: CommandContext<ServerCommandSource>): Int {
+    private fun setBackupIntervalHours(context: CommandContext<CommandSourceStack>): Int {
         val hours = IntegerArgumentType.getInteger(context, "hours")
         val result = BackupManager.setBackupIntervalHours(hours)
-        context.source.sendFeedback({
-            Text.literal(result)
+        context.source.sendSuccess({
+            Component.literal(result)
         }, true)
         return 1
     }
 
     // 设置天间隔
-    private fun setBackupIntervalDays(context: CommandContext<ServerCommandSource>): Int {
+    private fun setBackupIntervalDays(context: CommandContext<CommandSourceStack>): Int {
         val days = IntegerArgumentType.getInteger(context, "days")
         val result = BackupManager.setBackupIntervalDays(days)
-        context.source.sendFeedback({
-            Text.literal(result)
+        context.source.sendSuccess({
+            Component.literal(result)
         }, true)
         return 1
     }
 
-    private fun toggleBackup(context: CommandContext<ServerCommandSource>): Int {
+    private fun toggleBackup(context: CommandContext<CommandSourceStack>): Int {
         val state = StringArgumentType.getString(context, "state")
         val result = BackupManager.toggleBackup(state.equals("enable", true))
-        context.source.sendFeedback({
-            Text.literal(result)
+        context.source.sendSuccess({
+            Component.literal(result)
         }, true)
         return 1
     }
 
-    private fun setShutdownDelay(context: CommandContext<ServerCommandSource>): Int {
+    private fun setShutdownDelay(context: CommandContext<CommandSourceStack>): Int {
         val seconds = IntegerArgumentType.getInteger(context, "seconds")
         val result = BackupManager.setShutdownDelay(seconds)
-        context.source.sendFeedback({
-            Text.literal(result)
+        context.source.sendSuccess({
+            Component.literal(result)
         }, true)
         return 1
     }
 
-    private fun setDebugMode(context: CommandContext<ServerCommandSource>): Int {
+    private fun setDebugMode(context: CommandContext<CommandSourceStack>): Int {
         val state = StringArgumentType.getString(context, "state")
         val result = BackupManager.setDebugMode(state.equals("enable", true))
-        context.source.sendFeedback({
-            Text.literal(result)
+        context.source.sendSuccess({
+            Component.literal(result)
         }, true)
         return 1
     }
 
-    private fun showStatus(context: CommandContext<ServerCommandSource>): Int {
+    private fun showStatus(context: CommandContext<CommandSourceStack>): Int {
         val status = BackupManager.getBackupStatus()
-        context.source.sendFeedback({
-            Text.literal(status)
+        context.source.sendSuccess({
+            Component.literal(status)
         }, false)
         return 1
     }
 
     // 重新加载配置
-    private fun reloadConfig(context: CommandContext<ServerCommandSource>): Int {
+    private fun reloadConfig(context: CommandContext<CommandSourceStack>): Int {
         val result = BackupManager.reloadConfig()
-        context.source.sendFeedback({
-            Text.literal(result)
+        context.source.sendSuccess({
+            Component.literal(result)
         }, true)
         return 1
     }

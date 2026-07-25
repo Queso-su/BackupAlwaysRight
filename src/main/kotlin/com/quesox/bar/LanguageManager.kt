@@ -1,7 +1,7 @@
 package com.quesox.bar
 
-import net.minecraft.text.MutableText
-import net.minecraft.text.Text
+import net.minecraft.network.chat.Component
+import net.minecraft.network.chat.MutableComponent
 import java.io.InputStream
 import java.nio.file.Files
 import java.nio.file.Path
@@ -226,7 +226,7 @@ object LanguageManager {
     }
 
     // 获取翻译文本（支持占位符）
-    fun translate(key: String, vararg args: Any): MutableText {
+    fun translate(key: String, vararg args: Any): MutableComponent {
         var translation = translations[key] ?: fallbackTranslations[key] ?: key
 
         // 替换占位符
@@ -241,11 +241,11 @@ object LanguageManager {
             }
         }
 
-        return Text.literal(translation)
+        return Component.literal(translation)
     }
 
     // 简化的翻译方法
-    fun tr(key: String, vararg args: Any): MutableText {
+    fun tr(key: String, vararg args: Any): MutableComponent {
         return translate(key, *args)
     }
 

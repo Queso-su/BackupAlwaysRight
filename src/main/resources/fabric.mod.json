@@ -1,7 +1,7 @@
 {
 	"schemaVersion": 1,
 	"id": "backupalwaysright",
-	"version": "1.0.1",
+	"version": "${version}",
 	"name": "BackupAlwaysRight",
 	"description": "auto backup yours saves for server/自动备份你的服务器世界存档，支持定时备份和手动备份",
 	"authors": [
@@ -29,10 +29,10 @@
 		]
 	},
 	"depends": {
-		"fabricloader": ">=0.18.1",
-		"minecraft": ">=1.21.11",
-		"java": ">=17",
-		"fabric-api": "*",
-		"fabric-language-kotlin": "*"
+		"fabricloader": ">=${loader_version}",
+		"minecraft": "${minecraft_version}",
+		"java": ">=${java_version}",
+		"fabric-api": ">=${fabric_version}",
+		"fabric-language-kotlin": ">=${fabric_kotlin_version}"
 	}
 }

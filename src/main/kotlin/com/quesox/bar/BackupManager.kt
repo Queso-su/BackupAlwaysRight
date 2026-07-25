@@ -2,7 +2,7 @@ package com.quesox.bar
 
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents
 import net.minecraft.server.MinecraftServer
-import net.minecraft.text.Text
+import net.minecraft.network.chat.Component
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -99,7 +99,7 @@ object BackupManager {
             server = srv
 
             // 初始化语言管理器
-            LanguageManager.initialize(server.runDirectory)
+            LanguageManager.initialize(server.serverDirectory)
 
             // 从配置文件读取设置
             loadConfig()
@@ -117,23 +117,23 @@ object BackupManager {
             startScheduledBackup()
 
             // 发送消息到控制台（使用翻译）
-            server.sendMessage(LanguageManager.tr("backupalwaysright.mod_initialized"))
+            server.sendSystemMessage(LanguageManager.tr("backupalwaysright.mod_initialized"))
             val intervalMinutes = parseTimeInterval(config.backupInterval)
-            server.sendMessage(LanguageManager.tr("backupalwaysright.system_started", intervalMinutes))
+            server.sendSystemMessage(LanguageManager.tr("backupalwaysright.system_started", intervalMinutes))
 
             backupDirs.forEachIndexed { _, dir ->
-                server.sendMessage(LanguageManager.tr("backupalwaysright.backup_path", dir.toAbsolutePath()))
+                server.sendSystemMessage(LanguageManager.tr("backupalwaysright.backup_path", dir.toAbsolutePath()))
             }
 
             if (config.smartBackup) {
-                server.sendMessage(LanguageManager.tr("backupalwaysright.smart_backup_enabled"))
+                server.sendSystemMessage(LanguageManager.tr("backupalwaysright.smart_backup_enabled"))
             }
             if (config.debugMode) {
-                server.sendMessage(LanguageManager.tr("backupalwaysright.debug_mode_enabled"))
-                server.sendMessage(LanguageManager.tr("backupalwaysright.backup_folders", config.backupFolders))
+                server.sendSystemMessage(LanguageManager.tr("backupalwaysright.debug_mode_enabled"))
+                server.sendSystemMessage(LanguageManager.tr("backupalwaysright.backup_folders", config.backupFolders))
                 if (config.smartBackup) {
-                    server.sendMessage(LanguageManager.tr("backupalwaysright.change_threshold", (config.changeThreshold * 100).format(2)))
-                    server.sendMessage(LanguageManager.tr("backupalwaysright.min_changed_files", config.minChangedFiles))
+                    server.sendSystemMessage(LanguageManager.tr("backupalwaysright.change_threshold", (config.changeThreshold * 100).format(2)))
+                    server.sendSystemMessage(LanguageManager.tr("backupalwaysright.min_changed_files", config.minChangedFiles))
                 }
             }
 
@@ -154,7 +154,7 @@ object BackupManager {
 
         if (paths.isEmpty()) {
             // 使用默认路径
-            val defaultPath = server.runDirectory.resolve("backups")
+            val defaultPath = server.serverDirectory.resolve("backups")
             backupDirs.add(defaultPath)
             Files.createDirectories(defaultPath)
         } else {
@@ -164,7 +164,7 @@ object BackupManager {
                     Files.createDirectories(path)
                     backupDirs.add(path)
                 } catch (e: Exception) {
-                    server.sendMessage(Text.literal("§c" + e.message?.let { LanguageManager.tr("backupalwaysright.backup_dir_failed", pathStr, it) }?.string))
+                    server.sendSystemMessage(Component.literal("§c" + e.message?.let { LanguageManager.tr("backupalwaysright.backup_dir_failed", pathStr, it) }?.string))
                 }
             }
         }
@@ -175,10 +175,10 @@ object BackupManager {
             if (path.startsWith("/") || path.contains(":\\") || path.startsWith("\\\\")) {
                 Paths.get(path)
             } else {
-                server.runDirectory.resolve(path)
+                server.serverDirectory.resolve(path)
             }
         } catch (_: Exception) {
-            server.runDirectory.resolve("backups")
+            server.serverDirectory.resolve("backups")
         }
     }
 
@@ -187,12 +187,12 @@ object BackupManager {
         val folderNames = config.backupFolders.split(";").map { it.trim() }.filter { it.isNotEmpty() }
 
         folderNames.forEach { folderName ->
-            val path = server.runDirectory.resolve(folderName)
+            val path = server.serverDirectory.resolve(folderName)
             if (Files.exists(path)) {
                 folders.add(WorldFolder(folderName, path))
             } else {
                 if (config.debugMode) {
-                    server.sendMessage(Text.literal("§7" + LanguageManager.tr("backupalwaysright.folder_not_found", folderName).string))
+                    server.sendSystemMessage(Component.literal("§7" + LanguageManager.tr("backupalwaysright.folder_not_found", folderName).string))
                 }
             }
         }
@@ -200,7 +200,7 @@ object BackupManager {
         worldFolders = folders
 
         if (config.debugMode && folders.isNotEmpty()) {
-            server.sendMessage(Text.literal("§a" + LanguageManager.tr("backupalwaysright.folders_loaded", folders.size).string))
+            server.sendSystemMessage(Component.literal("§a" + LanguageManager.tr("backupalwaysright.folders_loaded", folders.size).string))
         }
     }
 
@@ -239,7 +239,7 @@ object BackupManager {
                     backupFolders = props.getOrDefault("backupFolders", "world;world_nether;world_the_end")
                 )
             } catch (e: Exception) {
-                server.sendMessage(Text.literal("§c" + e.message?.let { LanguageManager.tr("backupalwaysright.config_read_failed", it) }?.string))
+                server.sendSystemMessage(Component.literal("§c" + e.message?.let { LanguageManager.tr("backupalwaysright.config_read_failed", it) }?.string))
                 config = BackupConfig()
                 saveConfig()
             }
@@ -356,7 +356,7 @@ object BackupManager {
 
             File("config/bar.conf").writeText(configContent)
         } catch (e: Exception) {
-            server.sendMessage(Text.literal("§c" + e.message?.let { LanguageManager.tr("backupalwaysright.config_save_failed", it) }?.string))
+            server.sendSystemMessage(Component.literal("§c" + e.message?.let { LanguageManager.tr("backupalwaysright.config_save_failed", it) }?.string))
         }
     }
 
@@ -453,7 +453,7 @@ object BackupManager {
             val significant = hasSizeChange || (hasRatioChange && hasMinFiles)
 
             if (config.debugMode && significant) {
-                server.sendMessage(Text.literal("§7" + LanguageManager.tr("backupalwaysright.significant_change",
+                server.sendSystemMessage(Component.literal("§7" + LanguageManager.tr("backupalwaysright.significant_change",
                     formatSize(changedSize), changedCount, (sizeRatio * 100).format(2)).string))
             }
 
@@ -554,7 +554,7 @@ object BackupManager {
             worldStateFile.writeText(data)
         } catch (e: Exception) {
             if (config.debugMode) {
-                server.sendMessage(Text.literal("§c" + e.message?.let { LanguageManager.tr("backupalwaysright.save_state_failed", it) }?.string))
+                server.sendSystemMessage(Component.literal("§c" + e.message?.let { LanguageManager.tr("backupalwaysright.save_state_failed", it) }?.string))
             }
         }
     }
@@ -606,7 +606,7 @@ object BackupManager {
             lastWorldState = WorldState(lastBackupTime, files, totalSize, totalFiles, folderHashes)
         } catch (e: Exception) {
             if (config.debugMode) {
-                server.sendMessage(Text.literal("§c" + e.message?.let { LanguageManager.tr("backupalwaysright.load_state_failed", it) }?.string))
+                server.sendSystemMessage(Component.literal("§c" + e.message?.let { LanguageManager.tr("backupalwaysright.load_state_failed", it) }?.string))
             }
             lastWorldState = WorldState()
         }
@@ -627,7 +627,7 @@ object BackupManager {
                 TimeUnit.MINUTES
             )
             if (config.debugMode) {
-                server.sendMessage(Text.literal("§a" + LanguageManager.tr("backupalwaysright.scheduled_backup_started", intervalMinutes).string))
+                server.sendSystemMessage(Component.literal("§a" + LanguageManager.tr("backupalwaysright.scheduled_backup_started", intervalMinutes).string))
             }
         }
     }
@@ -645,7 +645,7 @@ object BackupManager {
                 // 如果超时，强制关闭
                 backupExecutor.shutdownNow()
                 if (config.debugMode) {
-                    server.sendMessage(Text.literal("§c" + LanguageManager.tr("backupalwaysright.backup_executor_force_shutdown").string))
+                    server.sendSystemMessage(Component.literal("§c" + LanguageManager.tr("backupalwaysright.backup_executor_force_shutdown").string))
                 }
             }
         } catch (e: InterruptedException) {
@@ -676,11 +676,11 @@ object BackupManager {
 
     fun createBackup(manual: Boolean = false, shutdown: Boolean = false): String {
         // 如果不在主线程中，提交到主线程执行
-        if (!server.isOnThread) {
+        if (!server.isSameThread) {
             val result = AtomicReference<String>("")
             val latch = CountDownLatch(1)
             
-            server.executeSync {
+            server.executeBlocking {
                 try {
                     result.set(createBackupInternal(manual, shutdown))
                 } catch (e: Exception) {
@@ -720,7 +720,7 @@ object BackupManager {
                 if (!result.hasSignificantChange) {
                     val message = if (config.debugMode) "§7${result.reason}，${LanguageManager.tr("backupalwaysright.skip_backup").string}"
                     else "§7" + LanguageManager.tr("backupalwaysright.no_change_skip").string
-                    server.sendMessage(Text.literal(message))
+                    server.sendSystemMessage(Component.literal(message))
                     return message
                 }
             }
@@ -728,10 +728,10 @@ object BackupManager {
 
         // 自动备份前检查服务器是否有玩家在线
         if (!manual) {
-            if (server.playerManager.playerList.isEmpty()) {
+            if (server.playerList.players.isEmpty()) {
                 val message = if (config.debugMode) "§7服务器无玩家在线，${LanguageManager.tr("backupalwaysright.skip_backup").string}"
                 else "§7服务器无玩家在线，跳过自动备份"
-                server.sendMessage(Text.literal(message))
+                server.sendSystemMessage(Component.literal(message))
                 return message
             }
         }
@@ -745,10 +745,10 @@ object BackupManager {
             // 如果设置了提示时间，发送提示消息
             if (config.noticeTime > 0 && manual && notify) {
                 val noticeMessage = LanguageManager.tr("backupalwaysright.countdown_backup", config.noticeTime).string
-                server.playerManager.broadcast(Text.literal(noticeMessage), false)
+                server.playerList.broadcastSystemMessage(Component.literal(noticeMessage), false)
 
                 // 延迟执行备份 - 使用服务器调度器确保在主线程执行
-                server.executeSync {
+                server.executeBlocking {
                     try {
                         Thread.sleep((config.noticeTime * 1000).toLong())
                         executeBackupProcess(manual, notify)
@@ -765,7 +765,7 @@ object BackupManager {
             }
         } catch (e: Exception) {
             val errorMsg = e.message?.let { LanguageManager.tr("backupalwaysright.backup_failed", it) }!!.string
-            server.sendMessage(Text.literal("§c$errorMsg"))
+            server.sendSystemMessage(Component.literal("§c$errorMsg"))
             errorMsg
         }
     }
@@ -775,12 +775,12 @@ object BackupManager {
      */
     private fun executeBackupProcess(manual: Boolean, notify: Boolean) {
         // 在主线程中执行服务器保存操作
-        if (server.isOnThread) {
+        if (server.isSameThread) {
             // 如果已经在主线程中，直接执行
             performServerSave(manual, notify)
         } else {
             // 如果不在主线程中，提交到主线程执行
-            server.executeSync {
+            server.executeBlocking {
                 performServerSave(manual, notify)
             }
         }
@@ -791,16 +791,16 @@ object BackupManager {
      */
     private fun performServerSave(manual: Boolean, notify: Boolean) {
         // 确保服务器保存所有数据（同步执行）
-        server.playerManager.saveAllPlayerData()
-        server.save(true, true, true)
+        server.playerList.saveAll()
+        server.saveEverything(true, true, true)
 
         // 发送开始备份消息
-        server.sendMessage(Text.literal("§7" + LanguageManager.tr("backupalwaysright.backup_world_start").string))
+        server.sendSystemMessage(Component.literal("§7" + LanguageManager.tr("backupalwaysright.backup_world_start").string))
 
         // 修改条件：手动备份始终通知，自动备份根据配置通知
         val shouldNotifyPlayers = manual || notify
         if (shouldNotifyPlayers) {
-            server.playerManager.broadcast(Text.literal("§7" + LanguageManager.tr("backupalwaysright.backup_world_compressing").string), false)
+            server.playerList.broadcastSystemMessage(Component.literal("§7" + LanguageManager.tr("backupalwaysright.backup_world_compressing").string), false)
         }
 
         // 异步执行压缩备份
@@ -831,12 +831,12 @@ object BackupManager {
 
                 // 发送结果
                 results.forEach { result ->
-                    server.sendMessage(Text.literal("§a$result"))
+                    server.sendSystemMessage(Component.literal("§a$result"))
                 }
 
                 // 修改条件：手动备份始终通知，自动备份根据配置通知
                 if (shouldNotifyPlayers) {
-                    server.playerManager.broadcast(Text.literal("§a" + LanguageManager.tr("backupalwaysright.backup_world_completed").string), false)
+                    server.playerList.broadcastSystemMessage(Component.literal("§a" + LanguageManager.tr("backupalwaysright.backup_world_completed").string), false)
                 }
 
                 // 清理旧的备份文件
@@ -845,19 +845,19 @@ object BackupManager {
                 // 如果设置了关闭服务器，延迟后关闭
                 if (shutdownAfterBackup) {
                     val shutdownMsg = "§c" + LanguageManager.tr("backupalwaysright.shutdown_scheduled", config.shutdownDelay).string
-                    server.sendMessage(Text.literal(shutdownMsg))
+                    server.sendSystemMessage(Component.literal(shutdownMsg))
 
                     // 修改条件：手动备份始终通知，自动备份根据配置通知
                     if (shouldNotifyPlayers) {
-                        server.playerManager.broadcast(Text.literal(shutdownMsg), false)
+                        server.playerList.broadcastSystemMessage(Component.literal(shutdownMsg), false)
                     }
 
                     Thread.sleep((config.shutdownDelay * 1000).toLong())
-                    server.stop(false) // 正常关闭服务器
+                    server.halt(false) // 正常关闭服务器
                 }
             } catch (e: Exception) {
                 val errorMsg = LanguageManager.tr("backupalwaysright.backup_async_failed", e.message!!).string
-                server.sendMessage(Text.literal("§c$errorMsg"))
+                server.sendSystemMessage(Component.literal("§c$errorMsg"))
             }
         }
     }
@@ -898,7 +898,7 @@ object BackupManager {
                             val startTime = System.currentTimeMillis()
 
                             if (config.debugMode) {
-                                server.sendMessage(Text.literal("§7" + LanguageManager.tr("backupalwaysright.backup_world_compressing_file", worldFolder.name).string))
+                                server.sendSystemMessage(Component.literal("§7" + LanguageManager.tr("backupalwaysright.backup_world_compressing_file", worldFolder.name).string))
                             }
 
                             // 压缩文件夹
@@ -906,7 +906,7 @@ object BackupManager {
 
                             if (config.debugMode) {
                                 val elapsed = System.currentTimeMillis() - startTime
-                                server.sendMessage(Text.literal("§a" + LanguageManager.tr("backupalwaysright.backup_world_file_completed", worldFolder.name, elapsed).string))
+                                server.sendSystemMessage(Component.literal("§a" + LanguageManager.tr("backupalwaysright.backup_world_file_completed", worldFolder.name, elapsed).string))
                             }
                         }
                     }
@@ -914,12 +914,12 @@ object BackupManager {
 
                 // 验证备份完整性
                 if (config.verifyBackup) {
-                    server.sendMessage(Text.literal("§a" + LanguageManager.tr("backupalwaysright.verify_backup").string))
+                    server.sendSystemMessage(Component.literal("§a" + LanguageManager.tr("backupalwaysright.verify_backup").string))
                     if (verifyBackup(backupFile)) {
                         success = true
-                        server.sendMessage(Text.literal("§a" + LanguageManager.tr("backupalwaysright.verify_success").string))
+                        server.sendSystemMessage(Component.literal("§a" + LanguageManager.tr("backupalwaysright.verify_success").string))
                     } else {
-                        server.sendMessage(Text.literal("§c" + LanguageManager.tr("backupalwaysright.verify_failed").string))
+                        server.sendSystemMessage(Component.literal("§c" + LanguageManager.tr("backupalwaysright.verify_failed").string))
                         backupFile.delete()
                         if (attempts >= maxAttempts) {
                             throw Exception(LanguageManager.tr("backupalwaysright.max_retry_exceeded").string)
@@ -929,7 +929,7 @@ object BackupManager {
                     success = true
                 }
             } catch (e: Exception) {
-                server.sendMessage(Text.literal("§c" + e.message?.let { LanguageManager.tr("backupalwaysright.backup_process_error", it) }?.string))
+                server.sendSystemMessage(Component.literal("§c" + e.message?.let { LanguageManager.tr("backupalwaysright.backup_process_error", it) }?.string))
                 if (attempts >= maxAttempts) {
                     throw e
                 }
@@ -971,7 +971,7 @@ object BackupManager {
                     currentBackupSize.addAndGet(file.length())
                 } catch (_: Exception) {
                     if (config.debugMode) {
-                        server.sendMessage(Text.literal("§7" + LanguageManager.tr("backupalwaysright.backup_locked_file", file.absolutePath).string))
+                        server.sendSystemMessage(Component.literal("§7" + LanguageManager.tr("backupalwaysright.backup_locked_file", file.absolutePath).string))
                     }
                 }
 
@@ -981,7 +981,7 @@ object BackupManager {
                 if ( currentBackupProgress.get() % 100 == 0) {
                     val progress = (currentBackupProgress.get() * 100 / currentBackupTotal.get()).coerceIn(0, 100)
                     val processedMB = currentBackupSize.get() / (1024 * 1024)
-                    server.sendMessage(Text.literal("§7" + LanguageManager.tr("backupalwaysright.backup_progress", progress, processedMB).string))
+                    server.sendSystemMessage(Component.literal("§7" + LanguageManager.tr("backupalwaysright.backup_progress", progress, processedMB).string))
                 }
             }
         }
@@ -1008,13 +1008,13 @@ object BackupManager {
                     }
                 }
                 if (config.debugMode) {
-                    server.sendMessage(Text.literal("§7" + LanguageManager.tr("backupalwaysright.verify_file_count", entryCount).string))
+                    server.sendSystemMessage(Component.literal("§7" + LanguageManager.tr("backupalwaysright.verify_file_count", entryCount).string))
                 }
                 entryCount > 0 // 至少应该有一些文件
             }
             true
         } catch (e: Exception) {
-            server.sendMessage(Text.literal("§c" + e.message?.let { LanguageManager.tr("backupalwaysright.verify_exception", it) }?.string))
+            server.sendSystemMessage(Component.literal("§c" + e.message?.let { LanguageManager.tr("backupalwaysright.verify_exception", it) }?.string))
             false
         }
     }
@@ -1045,12 +1045,12 @@ object BackupManager {
                         .forEach {
                             it.delete()
                             if (config.debugMode) {
-                                server.sendMessage(Text.literal("§7" + LanguageManager.tr("backupalwaysright.backup_cleaning", it.name).string))
+                                server.sendSystemMessage(Component.literal("§7" + LanguageManager.tr("backupalwaysright.backup_cleaning", it.name).string))
                             }
                         }
                 }
             } catch (e: Exception) {
-                server.sendMessage(Text.literal("§c" + e.message?.let { LanguageManager.tr("backupalwaysright.backup_clean_failed", index + 1, it) }?.string))
+                server.sendSystemMessage(Component.literal("§c" + e.message?.let { LanguageManager.tr("backupalwaysright.backup_clean_failed", index + 1, it) }?.string))
             }
         }
     }
@@ -1163,7 +1163,7 @@ object BackupManager {
             }
         } catch (e: Exception) {
             val errorMsg = e.message?.let { LanguageManager.tr("backupalwaysright.reload_failed", it) }!!.string
-            server.sendMessage(Text.literal("§c$errorMsg"))
+            server.sendSystemMessage(Component.literal("§c$errorMsg"))
             return "§c$errorMsg"
         }
     }
@@ -1202,7 +1202,7 @@ object BackupManager {
    fun setLanguage(lang: String): String {
        return try {
            val language = LanguageManager.Language.fromCode(lang)
-           val success = LanguageManager.setLanguage(language, server.runDirectory)
+           val success = LanguageManager.setLanguage(language, server.serverDirectory)
 
            if (success) {
                "§a" + LanguageManager.tr("backupalwaysright.language_set", language.code).string

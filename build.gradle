@@ -1,9 +1,9 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-	id 'net.fabricmc.fabric-loom-remap' version "${loom_version}"
+	id 'net.fabricmc.fabric-loom' version "${loom_version}"
 	id 'maven-publish'
-	id "org.jetbrains.kotlin.jvm" version "2.3.0"
+	id "org.jetbrains.kotlin.jvm" version "2.4.0"
 }
 
 version = project.mod_version
@@ -30,12 +30,11 @@ fabricApi {
 dependencies {
 	// To change the versions see the gradle.properties file
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
-	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
-	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+	implementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
 	// Fabric API. This is technically optional, but you probably want it anyway.
-	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
-	modImplementation "net.fabricmc:fabric-language-kotlin:${project.fabric_kotlin_version}"
+	implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+	implementation "net.fabricmc:fabric-language-kotlin:${project.fabric_kotlin_version}"
 
 	// 添加Apache Commons IO用于文件操作
 	implementation 'commons-io:commons-io:2.14.0'
@@ -46,19 +45,24 @@ dependencies {
 
 processResources {
 	inputs.property "version", project.version
+	inputs.property "minecraft_version", project.minecraft_version
+	inputs.property "loader_version", project.loader_version
+	inputs.property "fabric_version", project.fabric_version
+	inputs.property "fabric_kotlin_version", project.fabric_kotlin_version
+	inputs.property "java_version", project.java_version
 
 	filesMatching("fabric.mod.json") {
-		expand "version": inputs.properties.version
+		expand inputs.properties
 	}
 }
 
 tasks.withType(JavaCompile).configureEach {
-	it.options.release = 21
+	it.options.release = project.java_version.toInteger()
 }
 
 tasks.withType(KotlinCompile).configureEach {
 	kotlinOptions {
-		jvmTarget = 21
+		jvmTarget = project.java_version
 	}
 }
 
@@ -68,8 +72,16 @@ java {
 	// If you remove this line, sources will not be generated.
 	withSourcesJar()
 
-	sourceCompatibility = JavaVersion.VERSION_21
-	targetCompatibility = JavaVersion.VERSION_21
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(project.java_version.toInteger())
+	}
+
+	sourceCompatibility = JavaVersion.VERSION_25
+	targetCompatibility = JavaVersion.VERSION_25
+}
+
+tasks.named("sourcesJar") {
+	mustRunAfter(tasks.named("runDatagen"))
 }
 
 jar {
