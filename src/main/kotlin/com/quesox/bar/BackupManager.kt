@@ -20,6 +20,8 @@ import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicLong
 import java.util.concurrent.atomic.AtomicReference
 import java.util.concurrent.CountDownLatch
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.ConcurrentLinkedQueue
 
 import java.util.zip.ZipEntry
 import java.util.zip.ZipFile
@@ -43,6 +45,7 @@ data class BackupConfig(
     var changeThreshold: Double = 0.01,          // 变化阈值（百分比）
     var minChangedFiles: Int = 5,                // 最小变化文件数
     var debugMode: Boolean = false,              // 调试模式（控制日志详细程度）
+    var multiBackup: Boolean = false,            // 多线程备份（实验性）
     var backupFolders: String = "world" // 要备份的文件夹（多个用;分隔）
 )
 
@@ -79,6 +82,9 @@ object BackupManager {
 
     // 用于异步备份的线程池
     private val backupExecutor = Executors.newSingleThreadExecutor()
+
+    // 用于多线程备份的线程池
+    private var multiBackupExecutor: ExecutorService? = null
 
     // 用于服务器关闭的标记
     private var shutdownAfterBackup = false
@@ -127,6 +133,9 @@ object BackupManager {
 
             if (config.smartBackup) {
                 server.sendSystemMessage(LanguageManager.tr("backupalwaysright.smart_backup_enabled"))
+            }
+            if (config.multiBackup) {
+                server.sendSystemMessage(LanguageManager.tr("backupalwaysright.multi_backup_enabled"))
             }
             if (config.debugMode) {
                 server.sendSystemMessage(LanguageManager.tr("backupalwaysright.debug_mode_enabled"))
@@ -236,6 +245,7 @@ object BackupManager {
                     changeThreshold = props.getOrDefault("changeThreshold", "0.01").toDouble(),
                     minChangedFiles = props.getOrDefault("minChangedFiles", "5").toInt(),
                     debugMode = props.getOrDefault("debugMode", "false").toBoolean(),
+                    multiBackup = props.getOrDefault("multiBackup", "false").toBoolean(),
                     backupFolders = props.getOrDefault("backupFolders", "world;world_nether;world_the_end")
                 )
             } catch (e: Exception) {
@@ -351,6 +361,10 @@ object BackupManager {
                 # Debug mode (true/false)
                 # 调试模式 (true/false)
                 debugMode=${config.debugMode}
+                
+                # Enable multi-threaded backup (experimental)
+                # 开启多线程读取压缩，理论速度提升100-200%（实验性） (true/false)
+                multiBackup=${config.multiBackup}
 """.trimIndent()
 
 
@@ -864,33 +878,42 @@ object BackupManager {
 
     private fun createCompressedBackupAsync(manual: Boolean, backupDir: Path): String {
         val backupName = generateBackupName(manual)
-        val backupFile = backupDir.resolve("$backupName.zip").toFile()
 
-        // 检查是否有可备份的文件夹
         val existingFolders = worldFolders.filter { it.enabled && Files.exists(it.path) }
 
         if (existingFolders.isEmpty()) {
             return LanguageManager.tr("backupalwaysright.no_world_folders").string
         }
 
-        // 计算需要备份的文件总数
         var totalFiles = 0
         existingFolders.forEach { folder ->
             totalFiles += countFiles(folder.path.toFile())
         }
         currentBackupTotal.set(totalFiles)
 
-        // 创建ZIP压缩文件
+        return if (config.multiBackup && existingFolders.size > 1) {
+            createMultiThreadedBackup(manual, backupDir, backupName, existingFolders)
+        } else {
+            createSingleThreadedBackup(backupDir, backupName, existingFolders)
+        }
+    }
+
+    private fun createSingleThreadedBackup(
+        backupDir: Path,
+        backupName: String,
+        existingFolders: List<WorldFolder>
+    ): String {
+        val backupFile = backupDir.resolve("$backupName.zip").toFile()
+
         var success = false
         var attempts = 0
         val maxAttempts = 2
-        // while (!success && attempts < maxAttempts) {
+
         while (!success) {
             attempts++
             try {
                 FileOutputStream(backupFile).use { fileOut ->
                     ZipOutputStream(fileOut).use { zipOut ->
-                        // 设置压缩级别
                         zipOut.setLevel(config.compressionLevel)
 
                         existingFolders.forEach { worldFolder ->
@@ -901,7 +924,6 @@ object BackupManager {
                                 server.sendSystemMessage(Component.literal("§7" + LanguageManager.tr("backupalwaysright.backup_world_compressing_file", worldFolder.name).string))
                             }
 
-                            // 压缩文件夹
                             compressFolderToZip(folder, worldFolder.name, zipOut)
 
                             if (config.debugMode) {
@@ -912,7 +934,6 @@ object BackupManager {
                     }
                 }
 
-                // 验证备份完整性
                 if (config.verifyBackup) {
                     server.sendSystemMessage(Component.literal("§a" + LanguageManager.tr("backupalwaysright.verify_backup").string))
                     if (verifyBackup(backupFile)) {
@@ -936,10 +957,150 @@ object BackupManager {
             }
         }
 
-        val fileSize = backupFile.length() / (1024 * 1024) // MB
+        val fileSize = backupFile.length() / (1024 * 1024)
         val elapsedTime = (System.currentTimeMillis() - currentBackupStartTime) / 1000
 
         return LanguageManager.tr("backupalwaysright.backup_created", backupName, fileSize, elapsedTime).string
+    }
+
+    private data class FileEntryData(
+        val entryName: String,
+        val data: ByteArray,
+        val isDirectory: Boolean
+    )
+
+    private fun createMultiThreadedBackup(
+        manual: Boolean,
+        backupDir: Path,
+        backupName: String,
+        existingFolders: List<WorldFolder>
+    ): String {
+        val cpuCores = Runtime.getRuntime().availableProcessors()
+        val executor = Executors.newFixedThreadPool(cpuCores.coerceAtLeast(2))
+        multiBackupExecutor = executor
+
+        try {
+            server.sendSystemMessage(Component.literal("§7" + LanguageManager.tr("backupalwaysright.multi_backup_start", existingFolders.size).string))
+
+            val latch = CountDownLatch(existingFolders.size)
+            val results = ConcurrentLinkedQueue<Pair<String, Long>>()
+            val errors = ConcurrentLinkedQueue<String>()
+
+            existingFolders.forEach { worldFolder ->
+                executor.submit {
+                    try {
+                        val dimStartTime = System.currentTimeMillis()
+                        val dimBackupName = "${backupName}_${worldFolder.name}"
+                        val dimBackupFile = backupDir.resolve("$dimBackupName.zip").toFile()
+
+                        val folder = worldFolder.path.toFile()
+
+                        val fileEntries = readFilesMultiThreaded(folder, worldFolder.name, executor)
+
+                        FileOutputStream(dimBackupFile).use { fileOut ->
+                            ZipOutputStream(fileOut).use { zipOut ->
+                                zipOut.setLevel(config.compressionLevel)
+
+                                fileEntries.forEach { entry ->
+                                    if (entry.isDirectory) {
+                                        zipOut.putNextEntry(ZipEntry(entry.entryName + "/"))
+                                        zipOut.closeEntry()
+                                    } else {
+                                        zipOut.putNextEntry(ZipEntry(entry.entryName))
+                                        zipOut.write(entry.data)
+                                        zipOut.closeEntry()
+                                        currentBackupSize.addAndGet(entry.data.size.toLong())
+                                        currentBackupProgress.incrementAndGet()
+                                    }
+                                }
+                            }
+                        }
+
+                        if (config.verifyBackup) {
+                            if (!verifyBackup(dimBackupFile)) {
+                                dimBackupFile.delete()
+                                throw Exception("Verification failed for ${worldFolder.name}")
+                            }
+                        }
+
+                        val elapsed = (System.currentTimeMillis() - dimStartTime) / 1000
+                        val sizeMB = dimBackupFile.length() / (1024 * 1024)
+                        results.add(Pair(worldFolder.name, dimBackupFile.length()))
+
+                        server.sendSystemMessage(Component.literal("§a" +
+                            LanguageManager.tr("backupalwaysright.multi_backup_dimension_done", worldFolder.name, sizeMB, elapsed).string))
+                    } catch (e: Exception) {
+                        errors.add("${worldFolder.name}: ${e.message}")
+                    } finally {
+                        latch.countDown()
+                    }
+                }
+            }
+
+            latch.await()
+
+            if (errors.isNotEmpty()) {
+                throw Exception(errors.joinToString("; "))
+            }
+
+            val totalSize = results.sumOf { it.second } / (1024 * 1024)
+            val elapsedTime = (System.currentTimeMillis() - currentBackupStartTime) / 1000
+
+            return LanguageManager.tr("backupalwaysright.backup_created", backupName + "_[multi]", totalSize, elapsedTime).string
+        } finally {
+            executor.shutdown()
+            multiBackupExecutor = null
+        }
+    }
+
+    private fun readFilesMultiThreaded(
+        folder: File,
+        basePath: String,
+        executor: ExecutorService
+    ): List<FileEntryData> {
+        val allFiles = mutableListOf<Pair<File, String>>()
+
+        fun collectFiles(dir: File, path: String) {
+            dir.listFiles()?.forEach { file ->
+                val entryName = "$path/${file.name}"
+                if (file.name == "session.lock") {
+                    return@forEach
+                }
+                if (file.isDirectory) {
+                    allFiles.add(Pair(file, entryName))
+                    collectFiles(file, entryName)
+                } else {
+                    allFiles.add(Pair(file, entryName))
+                }
+            }
+        }
+
+        collectFiles(folder, basePath)
+
+        val fileEntries = Collections.synchronizedList(mutableListOf<FileEntryData>())
+        val readLatch = CountDownLatch(allFiles.size)
+
+        allFiles.forEach { (file, entryName) ->
+            executor.submit {
+                try {
+                    if (file.isDirectory) {
+                        fileEntries.add(FileEntryData(entryName, ByteArray(0), true))
+                    } else {
+                        val data = file.readBytes()
+                        fileEntries.add(FileEntryData(entryName, data, false))
+                    }
+                } catch (_: Exception) {
+                    if (config.debugMode) {
+                        server.sendSystemMessage(Component.literal("§7" + LanguageManager.tr("backupalwaysright.backup_locked_file", file.absolutePath).string))
+                    }
+                } finally {
+                    readLatch.countDown()
+                }
+            }
+        }
+
+        readLatch.await()
+        return fileEntries.sortedBy { it.entryName }
     }
 
     /**
@@ -1159,6 +1320,7 @@ object BackupManager {
                 }
                 append("§7- " + LanguageManager.tr("backupalwaysright.smart_backup", if (config.smartBackup) "§a" + LanguageManager.tr("backupalwaysright.enabled").string else "§c" + LanguageManager.tr("backupalwaysright.disabled").string).string + "\n")
                 append("§7- " + LanguageManager.tr("backupalwaysright.debug_mode", if (config.debugMode) "§a" + LanguageManager.tr("backupalwaysright.enabled").string else "§c" + LanguageManager.tr("backupalwaysright.disabled").string).string + "\n")
+                append("§7- " + LanguageManager.tr("backupalwaysright.multi_backup_enabled", if (config.multiBackup) "§a" + LanguageManager.tr("backupalwaysright.enabled").string else "§c" + LanguageManager.tr("backupalwaysright.disabled").string).string + "\n")
                 append("§7- " + LanguageManager.tr("backupalwaysright.backup_folders", config.backupFolders).string + "\n")
             }
         } catch (e: Exception) {

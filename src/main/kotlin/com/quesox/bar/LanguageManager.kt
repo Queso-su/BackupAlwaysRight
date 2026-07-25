@@ -134,7 +134,10 @@ object LanguageManager {
                     "backupalwaysright.verify_backup" to "Backup completed, verifying backup integrity...",
                     "backupalwaysright.verify_success" to "Backup verification passed",
                     "backupalwaysright.backup_path_result" to "Path %1\$s: %2\$s",
-                    "backupalwaysright.backup_created" to "Backup created successfully: %1\$s.zip (%2\$sMB) Path: %3\$s"
+                    "backupalwaysright.backup_created" to "Backup created successfully: %1\$s.zip (%2\$sMB) Path: %3\$s",
+                    "backupalwaysright.multi_backup_enabled" to "Multi-threaded backup enabled (experimental)",
+                    "backupalwaysright.multi_backup_start" to "Multi-threaded backup started, compressing %1\$s dimensions in parallel",
+                    "backupalwaysright.multi_backup_dimension_done" to "Dimension %1\$s backup completed (%2\$sMB, %3\$ss)"
                 ))
             }
             Language.ZH_CN -> {
@@ -147,7 +150,10 @@ object LanguageManager {
                     "backupalwaysright.verify_backup" to "备份完成，验证备份完整性...",
                     "backupalwaysright.verify_success" to "备份验证通过",
                     "backupalwaysright.backup_path_result" to "路径 %1\$s: %2\$s",
-                    "backupalwaysright.backup_created" to "备份创建成功: %1\$s.zip (%2\$sMB) 路径: %3\$s"
+                    "backupalwaysright.backup_created" to "备份创建成功: %1\$s.zip (%2\$sMB) 路径: %3\$s",
+                    "backupalwaysright.multi_backup_enabled" to "多线程备份已启用（实验性）",
+                    "backupalwaysright.multi_backup_start" to "多线程备份已启动，正在并行压缩 %1\$s 个维度",
+                    "backupalwaysright.multi_backup_dimension_done" to "维度 %1\$s 备份完成（%2\$sMB，%3\$s秒）"
                 ))
             }
             else -> {

@@ -50,10 +50,10 @@ object BackupCommands {
                     .executes { toggleBackup(it) }))
 
             .then(Commands.literal("shutdown")
+                .requires(Commands.hasPermission(Commands.LEVEL_OWNERS))
                 .executes { executeBackupNow(it, true) }
                 .then(Commands.literal("delay")
                     .then(Commands.argument("seconds", IntegerArgumentType.integer(1, 60))
-                        .requires(Commands.hasPermission(Commands.LEVEL_OWNERS))
                         .executes { setShutdownDelay(it) })))
             // 新增的命令
             .then(Commands.literal("debug")
