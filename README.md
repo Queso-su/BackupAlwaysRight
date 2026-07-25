@@ -123,7 +123,11 @@ compressionLevel=3
 minBackupSizeMB=5
 
 # Debug mode
-debugMode=false
+debugMode=false  
+
+# multi Backup
+multiBackup=true
+
 ```
 
 

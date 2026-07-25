@@ -141,7 +141,10 @@ minBackupSizeMB=5
 
 
 # 调试模式
-debugMode=false
+debugMode=false  
+
+# 多线程备份
+multiBackup=true
 
 ```
 
